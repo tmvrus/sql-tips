@@ -17,7 +17,7 @@ var (
 )
 
 func _() {
-	db, err = sql.Open("pg", "postgres://user:password@host:5432/dbname?sslmode=disable&timeout=1s&pool=10&param=valur")
+	db, err = sql.Open("postgres", "postgres://user:password@host:5432/dbname?sslmode=disable&timeout=1s&pool=10&param=valur")
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

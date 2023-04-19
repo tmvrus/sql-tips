@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 )
 
 func _() {
@@ -38,10 +40,11 @@ func _() {
 	id := "ID"
 	_ = db.QueryRowContext(ctx, "SELECT url FROM urls WHERE id = "+id)
 
-	_ = db.QueryRowContext(ctx, "SELECT url FROM urls WHERE id = $1", id) // аргументы передаются отдельно от кода
+	_ = db.QueryRowContext(ctx, "SELECT url FROM urls WHERE id = $2 AND name = $1", "name", id) // аргументы передаются отдельно от кода
 }
 
 // {"city":"London", "country":"UK", "phone":["123", "456", "789"]}
+// "1 2 3 4 5 6"
 type address struct {
 	City    string   `json:"city"`
 	Country uint32   `json:"country"`
@@ -53,6 +56,23 @@ func _() {
 	if err := db.QueryRowContext(ctx, "SELECT address FROM persons WHERE id = 100").Scan(&a); err != nil {
 		log.Println(err.Error())
 	}
+}
+
+type list []int
+
+func (l *list) Scan(i any) error {
+	s, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("unexpected type %T", i)
+	}
+
+	p := strings.Split(s, "")
+	ll := make([]int, len(p))
+	for i := range p {
+		ll[i], _ = strconv.Atoi(p[i])
+	}
+	*l = ll
+	return nil
 }
 
 // Scan релизует интерфейс sql.Scanner
